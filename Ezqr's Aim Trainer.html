@@ -1,0 +1,3288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Ezqr's Aim Trainer</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        button,
+        select {
+            padding: 12px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+        }
+
+        select {
+            background: #222;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        /* ========================= */
+        /* AUTH */
+        /* ========================= */
+
+        #authBar {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+        }
+
+        #authBar button {
+            font-size: 14px;
+            padding: 9px 15px;
+        }
+
+        #loggedInAs {
+            margin-right: 5px;
+            color: #aaa;
+        }
+
+        #authScreen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #111;
+            z-index: 200;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        #authScreen h1 {
+            font-size: 40px;
+        }
+
+        #authBox {
+            width: 350px;
+            max-width: 90%;
+            margin: auto;
+            background: #1b1b1b;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        #authBox input {
+            width: 100%;
+            padding: 13px;
+            margin: 7px 0;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        #authBox button {
+            width: 100%;
+            margin: 7px 0;
+        }
+
+        #authStatus {
+            min-height: 25px;
+            margin-top: 10px;
+        }
+
+        /* ========================= */
+        /* MENU */
+        /* ========================= */
+
+        #menu {
+            text-align: center;
+            padding-top: 60px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        #menu h1 {
+            font-size: 45px;
+            margin-bottom: 30px;
+        }
+
+        #menu p {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        #menuSection {
+            margin: 20px auto;
+        }
+
+        #startButton {
+            font-size: 25px;
+            padding: 15px 50px;
+            margin-bottom: 20px;
+        }
+
+        #selectedMode,
+        #selectedTime,
+        #selectedSize,
+        #selectedDistance {
+            font-weight: bold;
+        }
+
+        /* ========================= */
+        /* GAME */
+        /* ========================= */
+
+        #game {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #pathCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
+
+        #target {
+            width: 50px;
+            height: 50px;
+            background: red;
+            border-radius: 50%;
+            position: absolute;
+            cursor: crosshair;
+        }
+
+        #score {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: #222;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        #timer {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 25px;
+            z-index: 5;
+        }
+
+        #reaction {
+            position: fixed;
+            top: 60px;
+            left: 20px;
+            font-size: 18px;
+            z-index: 5;
+        }
+
+        #accuracy {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 25px;
+            z-index: 5;
+        }
+
+        #efficiency {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            z-index: 5;
+        }
+
+        /* ========================= */
+        /* RESULTS */
+        /* ========================= */
+
+        #results {
+            display: none;
+            text-align: center;
+            padding-top: 50px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        #results h1 {
+            font-size: 45px;
+        }
+
+        #results p {
+            font-size: 22px;
+        }
+
+        #results button {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 40px;
+            font-size: 20px;
+        }
+
+        #playerName {
+            padding: 12px;
+            width: 250px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: none;
+            margin: 10px;
+        }
+
+        #leaderboard {
+            margin: 30px auto;
+            width: 95%;
+            max-width: 1100px;
+            overflow-x: auto;
+        }
+
+        #leaderboard h2 {
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        #leaderboardFilters {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        #leaderboardFilters select {
+            min-width: 150px;
+            background: #222;
+            color: white;
+            border: 1px solid #444;
+        }
+
+        #leaderboardTable {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1b1b1b;
+        }
+
+        #leaderboardTable th,
+        #leaderboardTable td {
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
+
+        #leaderboardTable th {
+            background: #222;
+        }
+
+        #leaderboardTable tr:hover {
+            background: #292929;
+        }
+
+        #leaderboardStatus {
+            font-size: 16px;
+            min-height: 20px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ========================= -->
+<!-- AUTH BAR -->
+<!-- ========================= -->
+
+<div id="authBar">
+
+    <span id="loggedInAs"></span>
+
+    <button
+        id="loginButton"
+        onclick="showAuthScreen()">
+        LOGIN
+    </button>
+
+    <button
+        id="logoutButton"
+        onclick="logout()"
+        style="display:none;">
+        LOGOUT
+    </button>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- AUTH SCREEN -->
+<!-- ========================= -->
+
+<div id="authScreen">
+
+    <h1>Ezqr's Aim Trainer</h1>
+
+    <div id="authBox">
+
+        <h2 id="authTitle">
+            Login
+        </h2>
+
+
+        <input
+            id="authName"
+            type="text"
+            maxlength="20"
+            placeholder="Username"
+            style="display:none;"
+        >
+
+
+        <input
+            id="authEmail"
+            type="email"
+            placeholder="Email"
+        >
+
+
+        <input
+            id="authPassword"
+            type="password"
+            placeholder="Password"
+        >
+
+
+        <button onclick="handleAuth()">
+            LOGIN
+        </button>
+
+
+        <button
+            id="switchAuthButton"
+            onclick="toggleAuthMode()">
+            CREATE ACCOUNT
+        </button>
+
+
+        <button
+            onclick="hideAuthScreen()">
+            BACK
+        </button>
+
+
+        <p id="authStatus"></p>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- MAIN MENU -->
+<!-- ========================= -->
+
+<div id="menu">
+
+    <h1>Ezqr's Aim Trainer</h1>
+
+    <button
+        id="startButton"
+        onclick="event.stopPropagation(); startGame()">
+
+        START
+
+    </button>
+
+
+    <div id="menuSection">
+
+        <p>Game Mode</p>
+
+        <button onclick="setGameMode('flick')">
+            Flick
+        </button>
+
+        <button onclick="setGameMode('precision')">
+            Precision
+        </button>
+
+        <button onclick="setGameMode('speed')">
+            Speed
+        </button>
+
+        <button onclick="setGameMode('tracking')">
+            Tracking
+        </button>
+
+        <p id="selectedMode">
+            Mode: Flick
+        </p>
+
+    </div>
+
+
+    <div id="menuSection">
+
+        <p>Game Time</p>
+
+        <button onclick="setGameTime(15)">
+            15 Seconds
+        </button>
+
+        <button onclick="setGameTime(30)">
+            30 Seconds
+        </button>
+
+        <button onclick="setGameTime(60)">
+            60 Seconds
+        </button>
+
+        <button onclick="setGameTime(90)">
+            90 Seconds
+        </button>
+
+        <p id="selectedTime">
+            Time: 30 seconds
+        </p>
+
+    </div>
+
+
+    <div id="menuSection">
+
+        <p>Target Size</p>
+
+        <button onclick="setTargetSize(70)">
+            Easy
+        </button>
+
+        <button onclick="setTargetSize(50)">
+            Medium
+        </button>
+
+        <button onclick="setTargetSize(30)">
+            Hard
+        </button>
+
+        <p id="selectedSize">
+            Target Size: Medium
+        </p>
+
+    </div>
+
+
+    <div id="menuSection">
+
+        <p>Target Distance</p>
+
+        <button onclick="setTargetDistance('close')">
+            Close
+        </button>
+
+        <button onclick="setTargetDistance('medium')">
+            Medium
+        </button>
+
+        <button onclick="setTargetDistance('far')">
+            Far
+        </button>
+
+        <p id="selectedDistance">
+            Distance: Medium
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- GAME -->
+<!-- ========================= -->
+
+<div id="game">
+
+    <div id="score">
+        Score: 0
+    </div>
+
+    <div id="timer">
+        Time: 30
+    </div>
+
+    <div id="reaction">
+        Time to Damage: -- ms
+    </div>
+
+    <canvas id="pathCanvas"></canvas>
+
+    <div id="target"></div>
+
+    <div id="accuracy">
+        Accuracy: 100%
+    </div>
+
+    <div id="efficiency">
+        Path Efficiency: --%
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- RESULTS -->
+<!-- ========================= -->
+
+<div id="results">
+
+    <h1>Game Over</h1>
+
+    <p id="finalScore">
+        Score: 0
+    </p>
+
+    <p id="finalAccuracy">
+        Accuracy: 0%
+    </p>
+
+    <p id="finalTime">
+        Average Time to Damage: -- ms
+    </p>
+
+    <p id="finalEfficiency">
+        Average Path Efficiency: --%
+    </p>
+
+
+    <div id="scoreSubmission">
+
+        <input
+            id="playerName"
+            type="text"
+            maxlength="20"
+            placeholder="Enter your name"
+        >
+
+        <br>
+
+        <button onclick="submitScore()">
+            SUBMIT SCORE
+        </button>
+
+    </div>
+
+
+    <p id="loginToSubmit"
+       style="display:none;">
+
+        You must be logged in to submit scores.
+
+        <br>
+
+        <button onclick="showAuthScreen()">
+            LOGIN / CREATE ACCOUNT
+        </button>
+
+    </p>
+
+
+    <p id="leaderboardStatus"></p>
+
+
+    <div id="leaderboard">
+
+        <h2>
+            🌎 GLOBAL LEADERBOARD
+        </h2>
+
+
+        <div id="leaderboardFilters">
+
+            <select
+                id="leaderboardMode"
+                onchange="loadLeaderboard()">
+
+                <option value="flick">
+                    Flick
+                </option>
+
+                <option value="precision">
+                    Precision
+                </option>
+
+                <option value="speed">
+                    Speed
+                </option>
+
+                <option value="tracking">
+                    Tracking
+                </option>
+
+            </select>
+
+
+            <select
+                id="leaderboardTime"
+                onchange="loadLeaderboard()">
+
+                <option value="15">
+                    15 Seconds
+                </option>
+
+                <option value="30">
+                    30 Seconds
+                </option>
+
+                <option value="60">
+                    60 Seconds
+                </option>
+
+                <option value="90">
+                    90 Seconds
+                </option>
+
+            </select>
+
+
+            <select
+                id="leaderboardSize"
+                onchange="loadLeaderboard()">
+
+                <option value="70">
+                    Easy
+                </option>
+
+                <option value="50">
+                    Medium
+                </option>
+
+                <option value="30">
+                    Hard
+                </option>
+
+            </select>
+
+
+            <select
+                id="leaderboardDistance"
+                onchange="loadLeaderboard()">
+
+                <option value="close">
+                    Close
+                </option>
+
+                <option value="medium">
+                    Medium
+                </option>
+
+                <option value="far">
+                    Far
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <table id="leaderboardTable">
+
+            <thead>
+
+                <tr>
+
+                    <th>#</th>
+                    <th>Player</th>
+                    <th>Score</th>
+                    <th>Accuracy</th>
+                    <th>Mode</th>
+                    <th>Time</th>
+                    <th>Size</th>
+                    <th>Distance</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="leaderboardBody">
+
+                <tr>
+
+                    <td colspan="8">
+                        Loading...
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <button
+        onclick="event.stopPropagation(); restartGame()">
+
+        PLAY AGAIN
+
+    </button>
+
+
+    <button
+        onclick="event.stopPropagation(); mainMenu()">
+
+        MAIN MENU
+
+    </button>
+
+</div>
+
+
+<!-- SUPABASE -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+
+/* ================================================= */
+/* SUPABASE */
+/* ================================================= */
+
+const SUPABASE_URL =
+    "https://ioivwaaamaakasmkdiec.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_1AmPS2v-y481tcprRjx2Lg_uuSvPM10";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* ================================================= */
+/* AUTH VARIABLES */
+/* ================================================= */
+
+let authMode = "login";
+
+let currentUser = null;
+
+
+/* ================================================= */
+/* CHECK LOGIN */
+/* ================================================= */
+
+async function checkAuth() {
+
+    const {
+        data,
+        error
+    } = await supabaseClient.auth.getSession();
+
+
+    if (error) {
+
+        console.error(error);
+
+        return;
+    }
+
+
+    currentUser =
+        data.session
+            ? data.session.user
+            : null;
+
+
+    updateAuthUI();
+
+}
+
+
+supabaseClient.auth.onAuthStateChange(
+    function(event, session) {
+
+        currentUser =
+            session
+                ? session.user
+                : null;
+
+        updateAuthUI();
+
+    }
+);
+
+
+/* ================================================= */
+/* AUTH UI */
+/* ================================================= */
+
+function updateAuthUI() {
+
+    let loginButton =
+        document.getElementById(
+            "loginButton"
+        );
+
+    let logoutButton =
+        document.getElementById(
+            "logoutButton"
+        );
+
+    let loggedInAs =
+        document.getElementById(
+            "loggedInAs"
+        );
+
+
+    if (currentUser) {
+
+        loginButton.style.display =
+            "none";
+
+        logoutButton.style.display =
+            "inline-block";
+
+
+        let username =
+            currentUser.user_metadata &&
+            currentUser.user_metadata.username;
+
+
+        loggedInAs.textContent =
+            username
+                ? "Logged in as " + username
+                : "Logged in";
+
+
+        document.getElementById(
+            "scoreSubmission"
+        ).style.display =
+            "block";
+
+
+        document.getElementById(
+            "loginToSubmit"
+        ).style.display =
+            "none";
+
+
+        let nameInput =
+            document.getElementById(
+                "playerName"
+            );
+
+
+        if (
+            username &&
+            !nameInput.value
+        ) {
+
+            nameInput.value =
+                username;
+
+        }
+
+    }
+
+    else {
+
+        loginButton.style.display =
+            "inline-block";
+
+        logoutButton.style.display =
+            "none";
+
+        loggedInAs.textContent =
+            "";
+
+
+        document.getElementById(
+            "scoreSubmission"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "loginToSubmit"
+        ).style.display =
+            "block";
+
+    }
+
+}
+
+
+/* ================================================= */
+/* SHOW AUTH */
+/* ================================================= */
+
+function showAuthScreen() {
+
+    document.getElementById(
+        "authScreen"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "authStatus"
+    ).textContent =
+        "";
+
+}
+
+
+/* ================================================= */
+/* HIDE AUTH */
+/* ================================================= */
+
+function hideAuthScreen() {
+
+    document.getElementById(
+        "authScreen"
+    ).style.display =
+        "none";
+
+}
+
+
+/* ================================================= */
+/* TOGGLE LOGIN / REGISTER */
+/* ================================================= */
+
+function toggleAuthMode() {
+
+    if (authMode === "login") {
+
+        authMode = "signup";
+
+        document.getElementById(
+            "authTitle"
+        ).textContent =
+            "Create Account";
+
+
+        document.getElementById(
+            "authName"
+        ).style.display =
+            "block";
+
+
+        document.getElementById(
+            "switchAuthButton"
+        ).textContent =
+            "BACK TO LOGIN";
+
+    }
+
+    else {
+
+        authMode = "login";
+
+        document.getElementById(
+            "authTitle"
+        ).textContent =
+            "Login";
+
+
+        document.getElementById(
+            "authName"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "switchAuthButton"
+        ).textContent =
+            "CREATE ACCOUNT";
+
+    }
+
+}
+
+
+/* ================================================= */
+/* LOGIN / SIGNUP */
+/* ================================================= */
+
+async function handleAuth() {
+
+    let email =
+        document.getElementById(
+            "authEmail"
+        ).value.trim();
+
+
+    let password =
+        document.getElementById(
+            "authPassword"
+        ).value;
+
+
+    let status =
+        document.getElementById(
+            "authStatus"
+        );
+
+
+    if (!email || !password) {
+
+        status.textContent =
+            "Enter your email and password.";
+
+        return;
+    }
+
+
+    status.textContent =
+        "Loading...";
+
+
+    try {
+
+        if (authMode === "signup") {
+
+            let username =
+                document.getElementById(
+                    "authName"
+                ).value.trim();
+
+
+            if (!username) {
+
+                status.textContent =
+                    "Enter a username.";
+
+                return;
+            }
+
+
+            if (username.length > 20) {
+
+                status.textContent =
+                    "Username must be 20 characters or less.";
+
+                return;
+            }
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signUp({
+
+                    email: email,
+
+                    password: password,
+
+                    options: {
+
+                        data: {
+
+                            username:
+                                username
+
+                        }
+
+                    }
+
+                });
+
+
+            if (error) {
+
+                throw error;
+
+            }
+
+
+            if (
+                data.session
+            ) {
+
+                status.textContent =
+                    "Account created!";
+
+                hideAuthScreen();
+
+            }
+
+            else {
+
+                status.textContent =
+                    "Account created! Check your email to confirm it.";
+
+            }
+
+        }
+
+        else {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signInWithPassword({
+
+                    email: email,
+
+                    password: password
+
+                });
+
+
+            if (error) {
+
+                throw error;
+
+            }
+
+
+            currentUser =
+                data.user;
+
+
+            status.textContent =
+                "Logged in!";
+
+
+            hideAuthScreen();
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            error.message ||
+            "Authentication failed.";
+
+    }
+
+}
+
+
+/* ================================================= */
+/* LOGOUT */
+/* ================================================= */
+
+async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    currentUser = null;
+
+    updateAuthUI();
+
+}
+
+
+/* ================================================= */
+/* GAME SETTINGS */
+/* ================================================= */
+
+let totalPathEfficiency = 0;
+
+let totalTimeToDamage = 0;
+
+let targetSize = 50;
+
+let targetDistance = "medium";
+
+let gameMode = "flick";
+
+let gameTime = 30;
+
+let score = 0;
+
+let time = 30;
+
+let gameRunning = false;
+
+let targetTime = 0;
+
+let shots = 0;
+
+let hits = 0;
+
+let countdown;
+
+let targetTimeout;
+
+let trackingDirectionTimeout;
+
+let trackingAnimationFrame;
+
+
+/* ================================================= */
+/* TRACKING VARIABLES */
+/* ================================================= */
+
+let trackingX = 0;
+
+let trackingY = 0;
+
+let trackingDX = 0;
+
+let trackingDY = 0;
+
+let mouseX = 0;
+
+let mouseY = 0;
+
+let trackingOnTargetTime = 0;
+
+let trackingOffTargetTime = 0;
+
+let trackingLastTime = 0;
+
+
+/* ================================================= */
+/* PATH */
+/* ================================================= */
+
+let mousePath = [];
+
+
+let canvas =
+    document.getElementById("pathCanvas");
+
+
+let ctx =
+    canvas.getContext("2d");
+
+
+canvas.width =
+    window.innerWidth;
+
+canvas.height =
+    window.innerHeight;
+
+
+/* ================================================= */
+/* MODE SELECTION */
+/* ================================================= */
+
+function setGameMode(mode) {
+
+    gameMode = mode;
+
+    let names = {
+
+        flick: "Flick",
+
+        precision: "Precision",
+
+        speed: "Speed",
+
+        tracking: "Tracking"
+
+    };
+
+    document.getElementById(
+        "selectedMode"
+    ).textContent =
+        "Mode: " + names[mode];
+}
+
+
+/* ================================================= */
+/* GAME TIME */
+/* ================================================= */
+
+function setGameTime(seconds) {
+
+    gameTime = seconds;
+
+    document.getElementById(
+        "selectedTime"
+    ).textContent =
+        "Time: " + seconds + " seconds";
+}
+
+
+/* ================================================= */
+/* TARGET SIZE */
+/* ================================================= */
+
+function setTargetSize(size) {
+
+    targetSize = size;
+
+    let name = "Medium";
+
+    if (size === 70) {
+        name = "Easy";
+    }
+
+    if (size === 30) {
+        name = "Hard";
+    }
+
+    document.getElementById(
+        "selectedSize"
+    ).textContent =
+        "Target Size: " + name;
+}
+
+
+/* ================================================= */
+/* TARGET DISTANCE */
+/* ================================================= */
+
+function setTargetDistance(distance) {
+
+    targetDistance = distance;
+
+    let name =
+        distance.charAt(0).toUpperCase() +
+        distance.slice(1);
+
+    document.getElementById(
+        "selectedDistance"
+    ).textContent =
+        "Distance: " + name;
+}
+
+
+/* ================================================= */
+/* CURRENT TARGET SIZE */
+/* ================================================= */
+
+function getCurrentTargetSize() {
+
+    if (gameMode === "precision") {
+
+        return 25;
+
+    }
+
+    return targetSize;
+}
+
+
+/* ================================================= */
+/* TARGET POSITION */
+/* ================================================= */
+
+function getRandomTargetPosition(size) {
+
+    let maxX =
+        Math.max(
+            0,
+            window.innerWidth - size
+        );
+
+    let maxY =
+        Math.max(
+            0,
+            window.innerHeight - size
+        );
+
+
+    let x;
+    let y;
+
+
+    if (
+        targetDistance === "close" &&
+        lastTargetPosition !== null
+    ) {
+
+        let previousX =
+            lastTargetPosition.x;
+
+        let previousY =
+            lastTargetPosition.y;
+
+
+        let distance =
+            200;
+
+
+        let angle =
+            Math.random() *
+            Math.PI *
+            2;
+
+
+        x =
+            previousX +
+            Math.cos(angle) *
+            (Math.random() * distance);
+
+
+        y =
+            previousY +
+            Math.sin(angle) *
+            (Math.random() * distance);
+
+
+        x =
+            Math.max(
+                0,
+                Math.min(x, maxX)
+            );
+
+        y =
+            Math.max(
+                0,
+                Math.min(y, maxY)
+            );
+
+    }
+
+    else if (
+        targetDistance === "medium" &&
+        lastTargetPosition !== null
+    ) {
+
+        let previousX =
+            lastTargetPosition.x;
+
+        let previousY =
+            lastTargetPosition.y;
+
+
+        let distance =
+            400 +
+            Math.random() * 200;
+
+
+        let angle =
+            Math.random() *
+            Math.PI *
+            2;
+
+
+        x =
+            previousX +
+            Math.cos(angle) *
+            distance;
+
+
+        y =
+            previousY +
+            Math.sin(angle) *
+            distance;
+
+
+        x =
+            Math.max(
+                0,
+                Math.min(x, maxX)
+            );
+
+        y =
+            Math.max(
+                0,
+                Math.min(y, maxY)
+            );
+
+    }
+
+    else if (
+        targetDistance === "far" &&
+        lastTargetPosition !== null
+    ) {
+
+        let previousX =
+            lastTargetPosition.x;
+
+        let previousY =
+            lastTargetPosition.y;
+
+
+        let distance =
+            700 +
+            Math.random() * 500;
+
+
+        let angle =
+            Math.random() *
+            Math.PI *
+            2;
+
+
+        x =
+            previousX +
+            Math.cos(angle) *
+            distance;
+
+
+        y =
+            previousY +
+            Math.sin(angle) *
+            distance;
+
+
+        x =
+            Math.max(
+                0,
+                Math.min(x, maxX)
+            );
+
+        y =
+            Math.max(
+                0,
+                Math.min(y, maxY)
+            );
+
+    }
+
+    else {
+
+        x =
+            Math.random() *
+            maxX;
+
+        y =
+            Math.random() *
+            maxY;
+
+    }
+
+
+    return {
+        x: x,
+        y: y
+    };
+
+}
+
+
+let lastTargetPosition = null;
+
+
+/* ================================================= */
+/* MOVE TARGET */
+/* ================================================= */
+
+function moveTarget() {
+
+    mousePath = [];
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    clearTimeout(targetTimeout);
+
+    clearTimeout(
+        trackingDirectionTimeout
+    );
+
+
+    cancelAnimationFrame(
+        trackingAnimationFrame
+    );
+
+
+    let target =
+        document.getElementById("target");
+
+
+    let currentTargetSize =
+        getCurrentTargetSize();
+
+
+    if (gameMode === "precision") {
+
+        target.style.width = "25px";
+
+        target.style.height = "25px";
+
+    }
+
+    else {
+
+        target.style.width =
+            targetSize + "px";
+
+        target.style.height =
+            targetSize + "px";
+
+    }
+
+
+    let position =
+        getRandomTargetPosition(
+            currentTargetSize
+        );
+
+
+    let x = position.x;
+
+    let y = position.y;
+
+
+    lastTargetPosition = {
+        x: x,
+        y: y
+    };
+
+
+    target.style.left =
+        x + "px";
+
+    target.style.top =
+        y + "px";
+
+
+    targetTime =
+        performance.now();
+
+
+    if (gameMode === "speed") {
+
+        targetTimeout =
+            setTimeout(
+                function() {
+
+                    if (!gameRunning) {
+                        return;
+                    }
+
+                    shots++;
+
+                    updateAccuracy();
+
+                    moveTarget();
+
+                },
+                700
+            );
+
+    }
+
+
+    if (gameMode === "tracking") {
+
+        trackingX = x;
+
+        trackingY = y;
+
+
+        trackingOnTargetTime = 0;
+
+        trackingOffTargetTime = 0;
+
+
+        trackingLastTime =
+            performance.now();
+
+
+        chooseTrackingDirection();
+
+
+        trackingAnimationFrame =
+            requestAnimationFrame(
+                updateTracking
+            );
+
+    }
+
+}
+
+
+/* ================================================= */
+/* RANDOM TRACKING DIRECTION */
+/* ================================================= */
+
+function chooseTrackingDirection() {
+
+    if (
+        !gameRunning ||
+        gameMode !== "tracking"
+    ) {
+        return;
+    }
+
+
+    let angle =
+        Math.random() *
+        Math.PI *
+        2;
+
+
+    let speed =
+        80 +
+        Math.random() * 180;
+
+
+    trackingDX =
+        Math.cos(angle) * speed;
+
+
+    trackingDY =
+        Math.sin(angle) * speed;
+
+
+    let changeTime =
+        1000 +
+        Math.random() * 3000;
+
+
+    trackingDirectionTimeout =
+        setTimeout(
+            chooseTrackingDirection,
+            changeTime
+        );
+
+}
+
+
+/* ================================================= */
+/* TRACKING UPDATE */
+/* ================================================= */
+
+function updateTracking(timestamp) {
+
+    if (
+        !gameRunning ||
+        gameMode !== "tracking"
+    ) {
+        return;
+    }
+
+
+    let target =
+        document.getElementById("target");
+
+
+    let currentTargetSize =
+        getCurrentTargetSize();
+
+
+    let now =
+        performance.now();
+
+
+    let deltaTime =
+        (now - trackingLastTime) /
+        1000;
+
+
+    trackingLastTime = now;
+
+
+    if (deltaTime > 0.05) {
+
+        deltaTime = 0.05;
+
+    }
+
+
+    trackingX +=
+        trackingDX * deltaTime;
+
+    trackingY +=
+        trackingDY * deltaTime;
+
+
+    let maxX =
+        Math.max(
+            0,
+            window.innerWidth -
+            currentTargetSize
+        );
+
+
+    let maxY =
+        Math.max(
+            0,
+            window.innerHeight -
+            currentTargetSize
+        );
+
+
+    if (trackingX <= 0) {
+
+        trackingX = 0;
+
+        trackingDX =
+            Math.abs(trackingDX);
+
+    }
+
+
+    if (trackingX >= maxX) {
+
+        trackingX = maxX;
+
+        trackingDX =
+            -Math.abs(trackingDX);
+
+    }
+
+
+    if (trackingY <= 0) {
+
+        trackingY = 0;
+
+        trackingDY =
+            Math.abs(trackingDY);
+
+    }
+
+
+    if (trackingY >= maxY) {
+
+        trackingY = maxY;
+
+        trackingDY =
+            -Math.abs(trackingDY);
+
+    }
+
+
+    trackingX =
+        Math.max(
+            0,
+            Math.min(
+                trackingX,
+                maxX
+            )
+        );
+
+
+    trackingY =
+        Math.max(
+            0,
+            Math.min(
+                trackingY,
+                maxY
+            )
+        );
+
+
+    target.style.left =
+        trackingX + "px";
+
+    target.style.top =
+        trackingY + "px";
+
+
+    let mouseInside =
+        mouseX >= trackingX &&
+        mouseX <=
+            trackingX +
+            currentTargetSize &&
+        mouseY >= trackingY &&
+        mouseY <=
+            trackingY +
+            currentTargetSize;
+
+
+    let elapsedMilliseconds =
+        deltaTime * 1000;
+
+
+    if (mouseInside) {
+
+        trackingOffTargetTime = 0;
+
+        trackingOnTargetTime +=
+            elapsedMilliseconds;
+
+
+        while (
+            trackingOnTargetTime >= 1000
+        ) {
+
+            trackingOnTargetTime -= 1000;
+
+            hits++;
+
+            shots++;
+
+            score++;
+
+
+            document.getElementById(
+                "score"
+            ).textContent =
+                "Score: " + score;
+
+
+            updateAccuracy();
+
+        }
+
+    }
+
+    else {
+
+        trackingOnTargetTime = 0;
+
+        trackingOffTargetTime +=
+            elapsedMilliseconds;
+
+
+        while (
+            trackingOffTargetTime >= 1000
+        ) {
+
+            trackingOffTargetTime -= 1000;
+
+            shots++;
+
+            updateAccuracy();
+
+        }
+
+    }
+
+
+    trackingAnimationFrame =
+        requestAnimationFrame(
+            updateTracking
+        );
+
+}
+
+
+/* ================================================= */
+/* MOUSE MOVEMENT */
+/* ================================================= */
+
+document.addEventListener(
+    "mousemove",
+    function(event) {
+
+        mouseX = event.clientX;
+
+        mouseY = event.clientY;
+
+
+        if (!gameRunning) {
+            return;
+        }
+
+
+        if (
+            gameMode === "tracking"
+        ) {
+            return;
+        }
+
+
+        mousePath.push({
+
+            x: event.clientX,
+
+            y: event.clientY
+
+        });
+
+
+        if (mousePath.length > 1) {
+
+            let previous =
+                mousePath[
+                    mousePath.length - 2
+                ];
+
+
+            let current =
+                mousePath[
+                    mousePath.length - 1
+                ];
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+                previous.x,
+                previous.y
+            );
+
+
+            ctx.lineTo(
+                current.x,
+                current.y
+            );
+
+
+            let efficiency =
+                calculatePathEfficiency();
+
+
+            ctx.strokeStyle =
+                getPathColor(
+                    efficiency
+                );
+
+
+            ctx.lineWidth = 2;
+
+
+            ctx.stroke();
+
+        }
+
+    }
+);
+
+
+/* ================================================= */
+/* TARGET HIT */
+/* ================================================= */
+
+document.getElementById(
+    "target"
+).onclick = function() {
+
+    if (!gameRunning) {
+        return;
+    }
+
+
+    if (
+        gameMode === "tracking"
+    ) {
+        return;
+    }
+
+
+    clearTimeout(
+        targetTimeout
+    );
+
+
+    let timeToDamage =
+        performance.now() -
+        targetTime;
+
+
+    totalTimeToDamage +=
+        timeToDamage;
+
+
+    let pathEfficiency =
+        calculatePathEfficiency();
+
+
+    totalPathEfficiency +=
+        pathEfficiency;
+
+
+    let efficiencyDisplay =
+        document.getElementById(
+            "efficiency"
+        );
+
+
+    efficiencyDisplay.textContent =
+        "Path Efficiency: " +
+        pathEfficiency.toFixed(1) +
+        "%";
+
+
+    efficiencyDisplay.style.color =
+        getPathColor(
+            pathEfficiency
+        );
+
+
+    score++;
+
+    hits++;
+
+    shots++;
+
+
+    updateAccuracy();
+
+
+    document.getElementById(
+        "score"
+    ).textContent =
+        "Score: " + score;
+
+
+    document.getElementById(
+        "reaction"
+    ).textContent =
+        "Time to Damage: " +
+        Math.round(
+            timeToDamage
+        ) +
+        " ms";
+
+
+    moveTarget();
+
+};
+
+
+/* ================================================= */
+/* MISSES */
+/* ================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        if (!gameRunning) {
+            return;
+        }
+
+
+        if (
+            gameMode === "tracking"
+        ) {
+            return;
+        }
+
+
+        if (
+            event.target.id !==
+            "target"
+        ) {
+
+            shots++;
+
+            updateAccuracy();
+
+        }
+
+    }
+);
+
+
+/* ================================================= */
+/* ACCURACY */
+/* ================================================= */
+
+function updateAccuracy() {
+
+    let accuracy = 0;
+
+
+    if (shots > 0) {
+
+        accuracy =
+            (hits / shots) *
+            100;
+
+    }
+
+
+    document.getElementById(
+        "accuracy"
+    ).textContent =
+        "Accuracy: " +
+        accuracy.toFixed(1) +
+        "%";
+
+}
+
+
+/* ================================================= */
+/* PATH EFFICIENCY */
+/* ================================================= */
+
+function calculatePathEfficiency() {
+
+    if (
+        mousePath.length < 2
+    ) {
+
+        return 100;
+
+    }
+
+
+    let totalDistance = 0;
+
+
+    for (
+        let i = 1;
+        i < mousePath.length;
+        i++
+    ) {
+
+        let dx =
+            mousePath[i].x -
+            mousePath[i - 1].x;
+
+
+        let dy =
+            mousePath[i].y -
+            mousePath[i - 1].y;
+
+
+        totalDistance +=
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+    }
+
+
+    let start =
+        mousePath[0];
+
+
+    let end =
+        mousePath[
+            mousePath.length - 1
+        ];
+
+
+    let straightDistance =
+        Math.sqrt(
+
+            Math.pow(
+                end.x - start.x,
+                2
+            )
+
+            +
+
+            Math.pow(
+                end.y - start.y,
+                2
+            )
+
+        );
+
+
+    if (
+        straightDistance === 0
+    ) {
+
+        return 100;
+
+    }
+
+
+    return (
+        straightDistance /
+        totalDistance
+    ) * 100;
+
+}
+
+
+/* ================================================= */
+/* PATH COLORS */
+/* ================================================= */
+
+function getPathColor(
+    efficiency
+) {
+
+    if (
+        efficiency >= 98
+    ) {
+
+        return "rgb(0,255,0)";
+
+    }
+
+
+    if (
+        efficiency >= 90
+    ) {
+
+        return "rgb(255,255,0)";
+
+    }
+
+
+    if (
+        efficiency >= 75
+    ) {
+
+        return "rgb(255,165,0)";
+
+    }
+
+
+    return "rgb(255,0,0)";
+
+}
+
+
+/* ================================================= */
+/* START GAME */
+/* ================================================= */
+
+function startGame() {
+
+    clearInterval(countdown);
+
+    clearTimeout(targetTimeout);
+
+    clearTimeout(
+        trackingDirectionTimeout
+    );
+
+
+    cancelAnimationFrame(
+        trackingAnimationFrame
+    );
+
+
+    document.getElementById(
+        "menu"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "results"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "game"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "target"
+    ).style.display =
+        "block";
+
+
+    totalPathEfficiency = 0;
+
+    totalTimeToDamage = 0;
+
+    score = 0;
+
+    time = gameTime;
+
+    gameRunning = true;
+
+    shots = 0;
+
+    hits = 0;
+
+    mousePath = [];
+
+    lastTargetPosition = null;
+
+
+    trackingOnTargetTime = 0;
+
+    trackingOffTargetTime = 0;
+
+    trackingLastTime =
+        performance.now();
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    document.getElementById(
+        "score"
+    ).textContent =
+        "Score: 0";
+
+
+    document.getElementById(
+        "timer"
+    ).textContent =
+        "Time: " + gameTime;
+
+
+    document.getElementById(
+        "reaction"
+    ).textContent =
+        "Time to Damage: -- ms";
+
+
+    document.getElementById(
+        "accuracy"
+    ).textContent =
+        "Accuracy: 100%";
+
+
+    document.getElementById(
+        "efficiency"
+    ).textContent =
+        "Path Efficiency: --%";
+
+
+    document.getElementById(
+        "efficiency"
+    ).style.color =
+        "white";
+
+
+    if (
+        gameMode === "tracking"
+    ) {
+
+        document.getElementById(
+            "efficiency"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "reaction"
+        ).style.display =
+            "none";
+
+    }
+
+    else {
+
+        document.getElementById(
+            "efficiency"
+        ).style.display =
+            "block";
+
+
+        document.getElementById(
+            "reaction"
+        ).style.display =
+            "block";
+
+    }
+
+
+    moveTarget();
+
+
+    countdown =
+        setInterval(
+            function() {
+
+                time--;
+
+
+                document.getElementById(
+                    "timer"
+                ).textContent =
+                    "Time: " + time;
+
+
+                if (
+                    time <= 0
+                ) {
+
+                    endGame();
+
+                }
+
+            },
+            1000
+        );
+
+}
+
+
+/* ================================================= */
+/* END GAME */
+/* ================================================= */
+
+function endGame() {
+
+    clearInterval(countdown);
+
+    clearTimeout(targetTimeout);
+
+    clearTimeout(
+        trackingDirectionTimeout
+    );
+
+
+    cancelAnimationFrame(
+        trackingAnimationFrame
+    );
+
+
+    gameRunning = false;
+
+
+    document.getElementById(
+        "target"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "game"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "results"
+    ).style.display =
+        "block";
+
+
+    let finalAccuracy = 0;
+
+
+    if (shots > 0) {
+
+        finalAccuracy =
+            (hits / shots) *
+            100;
+
+    }
+
+
+    let averageTime = 0;
+
+
+    if (hits > 0) {
+
+        averageTime =
+            totalTimeToDamage /
+            hits;
+
+    }
+
+
+    let averagePathEfficiency = 0;
+
+
+    if (hits > 0) {
+
+        averagePathEfficiency =
+            totalPathEfficiency /
+            hits;
+
+    }
+
+
+    document.getElementById(
+        "finalScore"
+    ).textContent =
+        "Score: " + score;
+
+
+    document.getElementById(
+        "finalAccuracy"
+    ).textContent =
+        "Accuracy: " +
+        finalAccuracy.toFixed(1) +
+        "%";
+
+
+    if (
+        gameMode === "tracking"
+    ) {
+
+        document.getElementById(
+            "finalTime"
+        ).textContent =
+            "Tracking Mode";
+
+
+        document.getElementById(
+            "finalEfficiency"
+        ).textContent =
+            "Path Efficiency: N/A";
+
+    }
+
+    else {
+
+        document.getElementById(
+            "finalTime"
+        ).textContent =
+            "Average Time to Damage: " +
+            Math.round(
+                averageTime
+            ) +
+            " ms";
+
+
+        document.getElementById(
+            "finalEfficiency"
+        ).textContent =
+            "Average Path Efficiency: " +
+            averagePathEfficiency.toFixed(1) +
+            "%";
+
+    }
+
+
+    document.getElementById(
+        "leaderboardStatus"
+    ).textContent =
+        "";
+
+
+    setLeaderboardFiltersToCurrentGame();
+
+    loadLeaderboard();
+
+}
+
+
+/* ================================================= */
+/* SET LEADERBOARD FILTERS */
+/* ================================================= */
+
+function setLeaderboardFiltersToCurrentGame() {
+
+    document.getElementById(
+        "leaderboardMode"
+    ).value =
+        gameMode;
+
+
+    document.getElementById(
+        "leaderboardTime"
+    ).value =
+        String(gameTime);
+
+
+    document.getElementById(
+        "leaderboardSize"
+    ).value =
+        String(targetSize);
+
+
+    document.getElementById(
+        "leaderboardDistance"
+    ).value =
+        targetDistance;
+
+}
+
+
+/* ================================================= */
+/* PLAY AGAIN */
+/* ================================================= */
+
+function restartGame() {
+
+    document.getElementById(
+        "results"
+    ).style.display =
+        "none";
+
+
+    startGame();
+
+}
+
+
+/* ================================================= */
+/* MAIN MENU */
+/* ================================================= */
+
+function mainMenu() {
+
+    clearInterval(countdown);
+
+    clearTimeout(targetTimeout);
+
+    clearTimeout(
+        trackingDirectionTimeout
+    );
+
+
+    cancelAnimationFrame(
+        trackingAnimationFrame
+    );
+
+
+    gameRunning = false;
+
+
+    document.getElementById(
+        "target"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "game"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "results"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "menu"
+    ).style.display =
+        "block";
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+}
+
+
+/* ================================================= */
+/* SUBMIT SCORE */
+/* ================================================= */
+
+async function submitScore() {
+
+    if (!currentUser) {
+
+        document.getElementById(
+            "leaderboardStatus"
+        ).textContent =
+            "You must be logged in to submit a score.";
+
+        showAuthScreen();
+
+        return;
+
+    }
+
+
+    let name =
+        document.getElementById(
+            "playerName"
+        ).value.trim();
+
+
+    if (!name) {
+
+        document.getElementById(
+            "leaderboardStatus"
+        ).textContent =
+            "Please enter a name.";
+
+        return;
+
+    }
+
+
+    name =
+        name.substring(0, 20);
+
+
+    let finalAccuracy = 0;
+
+
+    if (shots > 0) {
+
+        finalAccuracy =
+            (hits / shots) *
+            100;
+
+    }
+
+
+    document.getElementById(
+        "leaderboardStatus"
+    ).textContent =
+        "Submitting score...";
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.rpc(
+                "submit_score",
+                {
+
+                    p_player_name:
+                        name,
+
+                    p_score:
+                        score,
+
+                    p_accuracy:
+                        Number(
+                            finalAccuracy.toFixed(1)
+                        ),
+
+                    p_mode:
+                        gameMode,
+
+                    p_game_time:
+                        gameTime,
+
+                    p_target_size:
+                        targetSize,
+
+                    p_target_distance:
+                        targetDistance
+
+                }
+            );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        if (data === "WORSE") {
+
+            document.getElementById(
+                "leaderboardStatus"
+            ).textContent =
+                "You already have a better or equal score for this setup!";
+
+        }
+
+        else if (data === "UPDATED") {
+
+            document.getElementById(
+                "leaderboardStatus"
+            ).textContent =
+                "🏆 New personal best submitted!";
+
+        }
+
+        else {
+
+            document.getElementById(
+                "leaderboardStatus"
+            ).textContent =
+                "Score submitted!";
+
+        }
+
+
+        loadLeaderboard();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        document.getElementById(
+            "leaderboardStatus"
+        ).textContent =
+            error.message ||
+            "Could not submit score.";
+
+    }
+
+}
+
+
+/* ================================================= */
+/* LOAD LEADERBOARD */
+/* ================================================= */
+
+async function loadLeaderboard() {
+
+    let body =
+        document.getElementById(
+            "leaderboardBody"
+        );
+
+
+    let selectedMode =
+        document.getElementById(
+            "leaderboardMode"
+        ).value;
+
+
+    let selectedTime =
+        document.getElementById(
+            "leaderboardTime"
+        ).value;
+
+
+    let selectedSize =
+        document.getElementById(
+            "leaderboardSize"
+        ).value;
+
+
+    let selectedDistance =
+        document.getElementById(
+            "leaderboardDistance"
+        ).value;
+
+
+    body.innerHTML =
+        `
+        <tr>
+            <td colspan="8">
+                Loading...
+            </td>
+        </tr>
+        `;
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+
+                .from("leaderboard")
+
+                .select(
+                    "player_name,score,accuracy,mode,game_time,target_size,target_distance"
+                )
+
+                .eq(
+                    "mode",
+                    selectedMode
+                )
+
+                .eq(
+                    "game_time",
+                    Number(selectedTime)
+                )
+
+                .eq(
+                    "target_size",
+                    Number(selectedSize)
+                )
+
+                .eq(
+                    "target_distance",
+                    selectedDistance
+                )
+
+                .order(
+                    "score",
+                    {
+                        ascending: false
+                    }
+                )
+
+                .limit(10);
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        body.innerHTML = "";
+
+
+        if (
+            !data ||
+            data.length === 0
+        ) {
+
+            body.innerHTML =
+                `
+                <tr>
+                    <td colspan="8">
+                        No scores for this setup yet.
+                    </td>
+                </tr>
+                `;
+
+            return;
+
+        }
+
+
+        data.forEach(
+            function(player, index) {
+
+                let row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            player.player_name
+                        )}
+                    </td>
+
+                    <td>
+                        ${player.score}
+                    </td>
+
+                    <td>
+                        ${Number(
+                            player.accuracy
+                        ).toFixed(1)}%
+                    </td>
+
+                    <td>
+                        ${capitalize(
+                            player.mode
+                        )}
+                    </td>
+
+                    <td>
+                        ${player.game_time}s
+                    </td>
+
+                    <td>
+                        ${getTargetSizeName(
+                            player.target_size
+                        )}
+                    </td>
+
+                    <td>
+                        ${capitalize(
+                            player.target_distance
+                        )}
+                    </td>
+
+                `;
+
+
+                body.appendChild(row);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        body.innerHTML =
+            `
+            <tr>
+                <td colspan="8">
+                    Could not load leaderboard.
+                </td>
+            </tr>
+            `;
+
+    }
+
+}
+
+
+/* ================================================= */
+/* TARGET SIZE NAME */
+/* ================================================= */
+
+function getTargetSizeName(size) {
+
+    size =
+        Number(size);
+
+
+    if (size === 70) {
+
+        return "Easy";
+
+    }
+
+
+    if (size === 30) {
+
+        return "Hard";
+
+    }
+
+
+    return "Medium";
+
+}
+
+
+/* ================================================= */
+/* ESCAPE HTML */
+/* ================================================= */
+
+function escapeHTML(text) {
+
+    let div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
+
+}
+
+
+/* ================================================= */
+/* CAPITALIZE */
+/* ================================================= */
+
+function capitalize(text) {
+
+    if (!text) {
+        return "";
+    }
+
+
+    return (
+        text.charAt(0).toUpperCase() +
+        text.slice(1)
+    );
+
+}
+
+
+/* ================================================= */
+/* RESIZE */
+/* ================================================= */
+
+window.addEventListener(
+    "resize",
+    function() {
+
+        canvas.width =
+            window.innerWidth;
+
+        canvas.height =
+            window.innerHeight;
+
+
+        if (
+            gameRunning &&
+            gameMode === "tracking"
+        ) {
+
+            let target =
+                document.getElementById(
+                    "target"
+                );
+
+
+            let size =
+                getCurrentTargetSize();
+
+
+            let maxX =
+                Math.max(
+                    0,
+                    window.innerWidth -
+                    size
+                );
+
+
+            let maxY =
+                Math.max(
+                    0,
+                    window.innerHeight -
+                    size
+                );
+
+
+            trackingX =
+                Math.max(
+                    0,
+                    Math.min(
+                        trackingX,
+                        maxX
+                    )
+                );
+
+
+            trackingY =
+                Math.max(
+                    0,
+                    Math.min(
+                        trackingY,
+                        maxY
+                    )
+                );
+
+
+            target.style.left =
+                trackingX + "px";
+
+
+            target.style.top =
+                trackingY + "px";
+
+        }
+
+    }
+);
+
+
+/* ================================================= */
+/* INITIALIZE */
+/* ================================================= */
+
+checkAuth();
+
+loadLeaderboard();
+
+
+</script>
+
+</body>
+
+</html>
