@@ -51,6 +51,10 @@
             z-index: 100;
         }
 
+        #authBar.gameModeHidden {
+            display: none !important;
+        }
+
         #authBar button {
             font-size: 14px;
             padding: 9px 15px;
@@ -2184,6 +2188,12 @@ function getPathColor(
 
 function startGame() {
 
+    document.getElementById(
+        "authBar"
+    ).classList.add(
+        "gameModeHidden"
+    );
+
     clearInterval(countdown);
 
     clearTimeout(targetTimeout);
@@ -2340,6 +2350,12 @@ function startGame() {
 /* ================================================= */
 
 function endGame() {
+
+    document.getElementById(
+        "authBar"
+    ).classList.remove(
+        "gameModeHidden"
+    );
 
     clearInterval(countdown);
 
@@ -2507,6 +2523,12 @@ function restartGame() {
 /* ================================================= */
 
 function mainMenu() {
+
+    document.getElementById(
+        "authBar"
+    ).classList.remove(
+        "gameModeHidden"
+    );
 
     clearInterval(countdown);
 
