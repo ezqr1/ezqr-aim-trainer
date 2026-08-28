@@ -318,6 +318,36 @@
             min-height: 20px;
         }
 
+        /* ========================= */
+        /* MENU LEADERBOARD */
+        /* ========================= */
+
+        #menuLeaderboardButton {
+            font-size: 20px;
+            padding: 13px 35px;
+            margin-top: 5px;
+            margin-bottom: 25px;
+        }
+
+        #results.leaderboardOnly {
+            padding-top: 35px;
+        }
+
+        #results.leaderboardOnly > h1,
+        #results.leaderboardOnly > #finalScore,
+        #results.leaderboardOnly > #finalAccuracy,
+        #results.leaderboardOnly > #finalTime,
+        #results.leaderboardOnly > #finalEfficiency,
+        #results.leaderboardOnly > #scoreSubmission,
+        #results.leaderboardOnly > #loginToSubmit,
+        #results.leaderboardOnly > #playAgainButton {
+            display: none !important;
+        }
+
+        #results.leaderboardOnly #leaderboard {
+            margin-top: 10px;
+        }
+
     </style>
 
 </head>
@@ -414,6 +444,12 @@
         id="startButton"
         onclick="event.stopPropagation(); startGame()">
         START
+    </button>
+
+    <button
+        id="menuLeaderboardButton"
+        onclick="event.stopPropagation(); showLeaderboardFromMenu()">
+        LEADERBOARD
     </button>
 
     <div id="menuSection">
@@ -728,11 +764,13 @@
     </div>
 
     <button
+        id="playAgainButton"
         onclick="event.stopPropagation(); restartGame()">
         PLAY AGAIN
     </button>
 
     <button
+        id="mainMenuButton"
         onclick="event.stopPropagation(); mainMenu()">
         MAIN MENU
     </button>
@@ -2213,6 +2251,10 @@ function startGame() {
 
     document.getElementById(
         "results"
+    ).classList.remove("leaderboardOnly");
+
+    document.getElementById(
+        "results"
     ).style.display =
         "none";
 
@@ -2519,6 +2561,44 @@ function restartGame() {
 }
 
 /* ================================================= */
+/* LEADERBOARD FROM MAIN MENU */
+/* ================================================= */
+
+function showLeaderboardFromMenu() {
+
+    clearInterval(countdown);
+    clearTimeout(targetTimeout);
+    clearTimeout(trackingDirectionTimeout);
+    cancelAnimationFrame(trackingAnimationFrame);
+
+    gameRunning = false;
+
+    document.getElementById("authBar")
+        .classList.remove("gameModeHidden");
+
+    document.getElementById("menu")
+        .style.display = "none";
+
+    document.getElementById("game")
+        .style.display = "none";
+
+    const results = document.getElementById("results");
+
+    results.classList.add("leaderboardOnly");
+    results.style.display = "block";
+
+    document.getElementById("target")
+        .style.display = "none";
+
+    document.getElementById("leaderboardStatus")
+        .textContent = "";
+
+    loadLeaderboard();
+
+    results.scrollTop = 0;
+}
+
+/* ================================================= */
 /* MAIN MENU */
 /* ================================================= */
 
@@ -2553,6 +2633,10 @@ function mainMenu() {
         "game"
     ).style.display =
         "none";
+
+    document.getElementById(
+        "results"
+    ).classList.remove("leaderboardOnly");
 
     document.getElementById(
         "results"
